@@ -3,4 +3,12 @@ name = "rs-release"
 version = "0.1.0"
 authors = ["Boris Egorov <egorov@linux.com>"]
 
+description = "os-release parser"
+homepage = "https://github.com/JIghtuse/rs-release"
+repository = "https://github.com/JIghtuse/rs-release"
+
+readme = "README.md"
+keywords = ["os-release", "env"]
+license = "MIT/Apache-2.0"
+
 [dependencies]

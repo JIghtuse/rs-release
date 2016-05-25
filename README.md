@@ -1,2 +1,2 @@
 # rs-release
-Rust interface to /etc/os-release
+Rust [os-release](/etc/os-release) parser.
