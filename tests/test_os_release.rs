@@ -25,3 +25,14 @@ fn parses_ok() {
     assert_eq!(1, os_release.len());
     assert_eq!("Fedora", os_release["NAME"]);
 }
+
+#[test]
+fn trims_quotes() {
+    let path = "tests/data/os-release-quotes-two-env";
+    let os_release = parse_os_release(path);
+    assert!(os_release.is_ok());
+    let os_release = os_release.unwrap();
+    assert_eq!(2, os_release.len());
+    assert_eq!("Fedora 24 (Workstation Edition)", os_release["PRETTY_NAME"]);
+    assert_eq!("cpe:/o:fedoraproject:fedora:24", os_release["CPE_NAME"]);
+}

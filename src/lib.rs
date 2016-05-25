@@ -21,10 +21,25 @@ impl From<std::io::Error> for OsReleaseError {
 
 pub type Result<T> = std::result::Result<T, OsReleaseError>;
 
+fn trim_quotes(s: &str) -> &str {
+    let mut chars = s.chars();
+    let first = chars.next();
+    let last = chars.last();
+
+    // TODO: is it malformed if we have only one quote?
+    if first == last && (first == Some('"') || first == Some('\'')) {
+        &s[1..s.len() - 1]
+    } else {
+        s
+    }
+}
+
 fn extract_variable_and_value(s: String) -> Result<(String, String)> {
     if let Some(equal) = s.chars().position(|c| c == '=') {
         let var = &s[..equal];
         let val = &s[equal + 1..];
+
+        let val = trim_quotes(val);
         Ok((var.to_string(), val.to_string()))
     } else {
         Err(OsReleaseError::ParseError)
