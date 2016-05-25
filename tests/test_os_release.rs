@@ -15,3 +15,13 @@ fn fails_on_parse_errors() {
         assert_eq!(Err(OsReleaseError::ParseError), parse_os_release(file));
     }
 }
+
+#[test]
+fn parses_ok() {
+    let path = "tests/data/os-release-one-env";
+    let os_release = parse_os_release(path);
+    assert!(os_release.is_ok());
+    let os_release = os_release.unwrap();
+    assert_eq!(1, os_release.len());
+    assert_eq!("Fedora", os_release["NAME"]);
+}
