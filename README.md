@@ -1,2 +1,2 @@
 # rs-release
-Rust [os-release](/etc/os-release) parser.
+Rust [os-release](https://www.freedesktop.org/software/systemd/man/os-release.html) parser.
