@@ -4,10 +4,11 @@ use std::fs::File;
 use std::io::{BufReader, BufRead};
 use std::path::Path;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum OsReleaseError {
     Io,
     NoFile,
+    ParseError,
 }
 
 impl From<std::io::Error> for OsReleaseError {
@@ -18,17 +19,24 @@ impl From<std::io::Error> for OsReleaseError {
 
 pub type Result<T> = std::result::Result<T, OsReleaseError>;
 
+fn extract_variable_and_value(s: String) -> Result<(String, String)> {
+    if let Some(equal) = s.chars().position(|c| c == '=') {
+        let var = &s[..equal];
+        let val = &s[equal + 1..];
+        Ok((var.to_string(), val.to_string()))
+    } else {
+        Err(OsReleaseError::ParseError)
+    }
+}
+
 pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<String, String>> {
     let mut os_release = HashMap::new();
     let file = try!(File::open(path));
     let reader = BufReader::new(file);
     for line in reader.lines() {
         let line = try!(line);
-        if let Some(equal) = line.chars().position(|c| c == '=') {
-            let variable = &line[..equal];
-            let value = &line[equal + 1..];
-            os_release.insert(variable.to_string(), value.to_string());
-        }
+        let var_val = try!(extract_variable_and_value(line));
+        os_release.insert(var_val.0, var_val.1);
     }
     Ok(os_release)
 }
@@ -40,19 +48,5 @@ pub fn get_os_release() -> Result<HashMap<String, String>> {
         Ok(os_release)
     } else {
         Err(OsReleaseError::NoFile)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::parse_os_release;
-
-    #[test]
-    fn it_works() {
-        // TODO: Add some files to test
-        let result = parse_os_release("/etc/os-release").unwrap();
-        for (k, v) in result {
-            println!("{} {}", k, v);
-        }
     }
 }
