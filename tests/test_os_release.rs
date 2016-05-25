@@ -36,3 +36,23 @@ fn trims_quotes() {
     assert_eq!("Fedora 24 (Workstation Edition)", os_release["PRETTY_NAME"]);
     assert_eq!("cpe:/o:fedoraproject:fedora:24", os_release["CPE_NAME"]);
 }
+
+#[test]
+fn ignores_comments() {
+    let path = "tests/data/os-release-comment";
+    let os_release = parse_os_release(path);
+    assert!(os_release.is_ok());
+    let os_release = os_release.unwrap();
+    assert_eq!(0, os_release.len());
+}
+
+#[test]
+fn trims_whitespace() {
+    let path = "tests/data/os-release-whitespace";
+    let os_release = parse_os_release(path);
+    assert!(os_release.is_ok());
+    let os_release = os_release.unwrap();
+    assert_eq!(2, os_release.len());
+    assert_eq!("Fedora 24 (Workstation Edition)", os_release["PRETTY_NAME"]);
+    assert_eq!("cpe:/o:fedoraproject:fedora:24", os_release["CPE_NAME"]);
+}

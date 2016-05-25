@@ -34,13 +34,12 @@ fn trim_quotes(s: &str) -> &str {
     }
 }
 
-fn extract_variable_and_value(s: String) -> Result<(String, String)> {
+fn extract_variable_and_value(s: &str) -> Result<(String, String)> {
     if let Some(equal) = s.chars().position(|c| c == '=') {
         let var = &s[..equal];
         let val = &s[equal + 1..];
-
-        let val = trim_quotes(val);
-        Ok((var.to_string(), val.to_string()))
+        let val = trim_quotes(val.trim()).to_string();
+        Ok((var.trim().to_string(), val))
     } else {
         Err(OsReleaseError::ParseError)
     }
@@ -52,6 +51,11 @@ pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<String, Strin
     let reader = BufReader::new(file);
     for line in reader.lines() {
         let line = try!(line);
+        let line = line.trim();
+
+        if line.chars().next() == Some('#') {
+            continue;
+        }
         let var_val = try!(extract_variable_and_value(line));
         os_release.insert(var_val.0, var_val.1);
     }
