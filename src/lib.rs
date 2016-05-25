@@ -4,6 +4,8 @@ use std::fs::File;
 use std::io::{BufReader, BufRead};
 use std::path::Path;
 
+const PATHS: [&'static str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
+
 #[derive(Debug, PartialEq)]
 pub enum OsReleaseError {
     Io,
@@ -42,11 +44,10 @@ pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<String, Strin
 }
 
 pub fn get_os_release() -> Result<HashMap<String, String>> {
-    if let Ok(os_release) = parse_os_release("/etc/os-release") {
-        Ok(os_release)
-    } else if let Ok(os_release) = parse_os_release("/usr/lib/os-release") {
-        Ok(os_release)
-    } else {
-        Err(OsReleaseError::NoFile)
+    for file in PATHS.iter() {
+        if let Ok(os_release) = parse_os_release(file) {
+            return Ok(os_release);
+        }
     }
+    Err(OsReleaseError::NoFile)
 }
