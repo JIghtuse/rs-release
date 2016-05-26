@@ -22,16 +22,13 @@ impl From<std::io::Error> for OsReleaseError {
 pub type Result<T> = std::result::Result<T, OsReleaseError>;
 
 fn trim_quotes(s: &str) -> &str {
-    let mut chars = s.chars();
-    let first = chars.next();
-    let last = chars.last();
-
     // TODO: is it malformed if we have only one quote?
-    if first == last && (first == Some('"') || first == Some('\'')) {
-        &s[1..s.len() - 1]
-    } else {
-        s
+    for quote in &["\"", "'"] {
+        if s.starts_with(quote) && s.ends_with(quote) {
+            return &s[1..s.len() - 1];
+        }
     }
+    s
 }
 
 fn extract_variable_and_value(s: &str) -> Result<(String, String)> {
@@ -53,7 +50,7 @@ pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<String, Strin
         let line = try!(line);
         let line = line.trim();
 
-        if line.chars().next() == Some('#') {
+        if line.starts_with('#') {
             continue;
         }
         let var_val = try!(extract_variable_and_value(line));
@@ -63,7 +60,7 @@ pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<String, Strin
 }
 
 pub fn get_os_release() -> Result<HashMap<String, String>> {
-    for file in PATHS.iter() {
+    for file in &PATHS {
         if let Ok(os_release) = parse_os_release(file) {
             return Ok(os_release);
         }
