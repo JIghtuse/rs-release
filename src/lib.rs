@@ -24,8 +24,7 @@ pub type Result<T> = std::result::Result<T, OsReleaseError>;
 
 fn trim_quotes(s: &str) -> &str {
     // TODO: is it malformed if we have only one quote?
-    let is_quoted = |s: &str, q: &str| s.starts_with(q) && s.ends_with(q);
-    if QUOTES.iter().find(|q| is_quoted(s, q)).is_some() {
+    if QUOTES.iter().any(|q| s.starts_with(q) && s.ends_with(q)) {
         &s[1..s.len() - 1]
     } else {
         s
