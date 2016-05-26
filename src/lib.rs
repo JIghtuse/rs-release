@@ -5,6 +5,7 @@ use std::io::{BufReader, BufRead};
 use std::path::Path;
 
 const PATHS: [&'static str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
+const QUOTES: [&'static str; 2] = ["\"", "'"];
 
 #[derive(Debug, PartialEq)]
 pub enum OsReleaseError {
@@ -23,12 +24,12 @@ pub type Result<T> = std::result::Result<T, OsReleaseError>;
 
 fn trim_quotes(s: &str) -> &str {
     // TODO: is it malformed if we have only one quote?
-    for quote in &["\"", "'"] {
-        if s.starts_with(quote) && s.ends_with(quote) {
-            return &s[1..s.len() - 1];
-        }
+    let is_quoted = |s: &str, q: &str| s.starts_with(q) && s.ends_with(q);
+    if QUOTES.iter().find(|q| is_quoted(s, q)).is_some() {
+        &s[1..s.len() - 1]
+    } else {
+        s
     }
-    s
 }
 
 fn extract_variable_and_value(s: &str) -> Result<(String, String)> {
