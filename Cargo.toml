@@ -1,6 +1,6 @@
 [package]
 name = "rs-release"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Boris Egorov <egorov@linux.com>"]
 
 description = "os-release parser"
