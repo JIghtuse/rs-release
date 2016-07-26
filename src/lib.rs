@@ -8,7 +8,7 @@ use std::borrow::Cow;
 const PATHS: [&'static str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
 const QUOTES: [&'static str; 2] = ["\"", "'"];
 
-const COMMON_KEYS: [&'static str; 15] = ["ANSI_COLOR",
+const COMMON_KEYS: [&'static str; 16] = ["ANSI_COLOR",
                                          "BUG_REPORT_URL",
                                          "BUILD_ID",
                                          "CPE_NAME",
@@ -22,6 +22,7 @@ const COMMON_KEYS: [&'static str; 15] = ["ANSI_COLOR",
                                          "VARIANT",
                                          "VARIANT_ID",
                                          "VERSION",
+                                         "VERSION_CODENAME",
                                          "VERSION_ID"];
 
 #[derive(Debug, PartialEq)]
