@@ -1,3 +1,22 @@
+//! os-release parser
+//!
+//! # Usage example
+//!
+//!```
+//! use rs_release::parse_os_release;
+//!
+//! let os_release_path = "/etc/os-release";
+//! if let Ok(os_release) = parse_os_release(os_release_path) {
+//!     println!("Parsed os-release:");
+//!     for (k, v) in os_release {
+//!         println!("{}={}", k, v);
+//!     }
+//! } else {
+//!     println!("Cannot parse {}", os_release_path);
+//! }
+//!```
+#![deny(missing_docs)]
+
 use std::collections::HashMap;
 use std::convert::From;
 use std::fs::File;
@@ -25,10 +44,14 @@ const COMMON_KEYS: [&'static str; 16] = ["ANSI_COLOR",
                                          "VERSION_CODENAME",
                                          "VERSION_ID"];
 
+/// Represents possible errors when parsing os-release file
 #[derive(Debug, PartialEq)]
 pub enum OsReleaseError {
+    /// Input-Output error (failed to read file)
     Io,
+    /// Failed to find os-release file in standard paths
     NoFile,
+    /// File is malformed
     ParseError,
 }
 
@@ -38,6 +61,7 @@ impl From<std::io::Error> for OsReleaseError {
     }
 }
 
+/// A specialized `Result` type for os-release parsing operations.
 pub type Result<T> = std::result::Result<T, OsReleaseError>;
 
 fn trim_quotes(s: &str) -> &str {
@@ -66,6 +90,7 @@ fn extract_variable_and_value(s: &str) -> Result<(Cow<'static, str>, String)> {
     }
 }
 
+/// Parses key-value pairs from `path`
 pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, str>, String>> {
     let mut os_release = HashMap::new();
     let file = try!(File::open(path));
@@ -83,6 +108,7 @@ pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, 
     Ok(os_release)
 }
 
+/// Tries to find and parse os-release in common paths. Stops on success.
 pub fn get_os_release() -> Result<HashMap<Cow<'static, str>, String>> {
     for file in &PATHS {
         if let Ok(os_release) = parse_os_release(file) {
