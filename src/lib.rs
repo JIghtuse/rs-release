@@ -108,6 +108,21 @@ pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, 
     Ok(os_release)
 }
 
+/// Parses key-value pairs from `data` string
+pub fn parse_os_release_str(data: &str) -> Result<HashMap<Cow<'static, str>, String>> {
+    let mut os_release = HashMap::new();
+    for line in data.split('\n') {
+        let line = line.trim();
+
+        if line.starts_with('#') || line.is_empty() {
+            continue;
+        }
+        let var_val = try!(extract_variable_and_value(line));
+        os_release.insert(var_val.0, var_val.1);
+    }
+    Ok(os_release)
+}
+
 /// Tries to find and parse os-release in common paths. Stops on success.
 pub fn get_os_release() -> Result<HashMap<Cow<'static, str>, String>> {
     for file in &PATHS {
