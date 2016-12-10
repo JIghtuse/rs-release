@@ -1,6 +1,6 @@
 extern crate rs_release;
 
-use rs_release::{get_os_release, parse_os_release};
+use rs_release::{get_os_release, parse_os_release, parse_os_release_str};
 use std::env;
 
 fn main() {
@@ -20,5 +20,13 @@ fn main() {
             }
         }
         Err(e) => println!("ERROR: {:?}", e),
+    }
+
+    // You could also parse data from a string
+    if let Ok(os_release) = parse_os_release_str("NAME = Fedora") {
+        println!("Parsed os-release from &str:");
+        for (k, v) in os_release {
+            println!("{}={}", k, v);
+        }
     }
 }
