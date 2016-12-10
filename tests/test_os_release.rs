@@ -4,14 +4,14 @@ use rs_release::{OsReleaseError, parse_os_release, parse_os_release_str};
 
 #[test]
 fn fails_on_io_errors() {
-    for file in ["", "/etc/non_existing_file", "/etc/shadow"].iter() {
+    for file in &["", "/etc/non_existing_file", "/etc/shadow"] {
         assert_eq!(Err(OsReleaseError::Io), parse_os_release(file));
     }
 }
 
 #[test]
 fn fails_on_parse_errors() {
-    for file in ["tests/data/os-release-malformed-no-equal"].iter() {
+    for file in &["tests/data/os-release-malformed-no-equal"] {
         assert_eq!(Err(OsReleaseError::ParseError), parse_os_release(file));
     }
 }

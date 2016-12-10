@@ -4,9 +4,9 @@ use rs_release::{get_os_release, parse_os_release};
 use std::env;
 
 fn main() {
-    let args = env::args();
+    let mut args = env::args();
 
-    let os_release = if let Some(os_release_path) = args.skip(1).next() {
+    let os_release = if let Some(os_release_path) = args.nth(1) {
         parse_os_release(os_release_path)
     } else {
         get_os_release()

@@ -2,7 +2,7 @@
 //!
 //! # Usage example
 //!
-//!```
+//! ```
 //! use rs_release::parse_os_release;
 //!
 //! let os_release_path = "/etc/os-release";
@@ -14,7 +14,7 @@
 //! } else {
 //!     println!("Cannot parse {}", os_release_path);
 //! }
-//!```
+//! ```
 #![deny(missing_docs)]
 
 use std::collections::HashMap;
@@ -44,7 +44,7 @@ const COMMON_KEYS: [&'static str; 16] = ["ANSI_COLOR",
                                          "VERSION_CODENAME",
                                          "VERSION_ID"];
 
-/// Represents possible errors when parsing os-release file
+/// Represents possible errors when parsing os-release file/string
 #[derive(Debug, PartialEq)]
 pub enum OsReleaseError {
     /// Input-Output error (failed to read file)
