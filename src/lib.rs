@@ -99,7 +99,7 @@ pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, 
         let line = try!(line);
         let line = line.trim();
 
-        if line.starts_with('#') {
+        if line.starts_with('#') || line.is_empty() {
             continue;
         }
         let var_val = try!(extract_variable_and_value(line));
