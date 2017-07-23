@@ -19,6 +19,8 @@
 
 use std::collections::HashMap;
 use std::convert::From;
+use std::error::Error;
+use std::fmt;
 use std::fs::File;
 use std::io::{BufReader, BufRead};
 use std::path::Path;
@@ -45,19 +47,57 @@ const COMMON_KEYS: [&'static str; 16] = ["ANSI_COLOR",
                                          "VERSION_ID"];
 
 /// Represents possible errors when parsing os-release file/string
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum OsReleaseError {
     /// Input-Output error (failed to read file)
-    Io,
+    Io(std::io::Error),
     /// Failed to find os-release file in standard paths
     NoFile,
     /// File is malformed
     ParseError,
 }
 
+impl PartialEq for OsReleaseError {
+    fn eq(&self, other: &OsReleaseError) -> bool {
+        match (self, other) {
+            (&OsReleaseError::Io(_), &OsReleaseError::Io(_)) |
+            (&OsReleaseError::NoFile, &OsReleaseError::NoFile) |
+            (&OsReleaseError::ParseError, &OsReleaseError::ParseError) => true,
+            _ => false,
+        }
+    }
+}
+
+impl fmt::Display for OsReleaseError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            OsReleaseError::Io(ref inner) => inner.fmt(fmt),
+            OsReleaseError::NoFile => write!(fmt, "{}", self.description()),
+            OsReleaseError::ParseError => write!(fmt, "{}", self.description()),
+        }
+    }
+}
+
+impl Error for OsReleaseError {
+    fn description(&self) -> &str {
+        match *self {
+            OsReleaseError::Io(ref err) => err.description(),
+            OsReleaseError::NoFile => "Failed to find os-release file",
+            OsReleaseError::ParseError => "File is malformed",
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        match *self {
+            OsReleaseError::Io(ref err) => Some(err),
+            OsReleaseError::NoFile | OsReleaseError::ParseError => None,
+        }
+    }
+}
+
 impl From<std::io::Error> for OsReleaseError {
-    fn from(_: std::io::Error) -> OsReleaseError {
-        OsReleaseError::Io
+    fn from(err: std::io::Error) -> OsReleaseError {
+       OsReleaseError::Io(err)
     }
 }
 
