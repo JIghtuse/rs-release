@@ -5,7 +5,10 @@ use rs_release::{OsReleaseError, parse_os_release, parse_os_release_str};
 #[test]
 fn fails_on_io_errors() {
     for file in &["", "/etc/non_existing_file", "/etc/shadow"] {
-        assert_eq!(Err(OsReleaseError::Io), parse_os_release(file));
+        match parse_os_release(file) {
+            Err(OsReleaseError::Io(_)) => {}
+            err => panic!("Expected OsReleaseError::Io, but instead got {:?}", err),
+        }
     }
 }
 
