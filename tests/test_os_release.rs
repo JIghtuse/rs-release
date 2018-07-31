@@ -41,6 +41,21 @@ fn trims_quotes() {
 }
 
 #[test]
+fn unescapes_characters() {
+    let path = "tests/data/os-release-escaped-three-env";
+    let os_release = parse_os_release(path);
+    assert!(os_release.is_ok());
+    let os_release = os_release.unwrap();
+    assert_eq!(3, os_release.len());
+    assert_eq!("Multi-line\n\"Linux\"", os_release["NAME"]);
+    assert_eq!(r#"0.1\n-same-line"#, os_release["VERSION"]);
+    assert_eq!(
+        "To escape \\t use double-quotes: \t",
+        os_release["WEIRD_QUOTES"]
+    );
+}
+
+#[test]
 fn ignores_comments() {
     let path = "tests/data/os-release-comment";
     let os_release = parse_os_release(path);
