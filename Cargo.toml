@@ -13,3 +13,4 @@ keywords = ["os-release", "env", "systemd"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
+snailquote = "0.1"
