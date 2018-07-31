@@ -1,0 +1,3 @@
+NAME="Multi-line\n\"Linux\""
+VERSION='0.1\n-same-line'
+WEIRD_QUOTES='To escape \t' "use double-quotes: \t"

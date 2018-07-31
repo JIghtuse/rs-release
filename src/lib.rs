@@ -17,6 +17,8 @@
 //! ```
 #![deny(missing_docs)]
 
+extern crate snailquote;
+
 use std::collections::HashMap;
 use std::convert::From;
 use std::error::Error;
@@ -27,7 +29,6 @@ use std::path::Path;
 use std::borrow::Cow;
 
 const PATHS: [&'static str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
-const QUOTES: [&'static str; 2] = ["\"", "'"];
 
 const COMMON_KEYS: [&'static str; 16] = ["ANSI_COLOR",
                                          "BUG_REPORT_URL",
@@ -104,21 +105,12 @@ impl From<std::io::Error> for OsReleaseError {
 /// A specialized `Result` type for os-release parsing operations.
 pub type Result<T> = std::result::Result<T, OsReleaseError>;
 
-fn trim_quotes(s: &str) -> &str {
-    // TODO: is it malformed if we have only one quote?
-    if QUOTES.iter().any(|q| s.starts_with(q) && s.ends_with(q)) {
-        &s[1..s.len() - 1]
-    } else {
-        s
-    }
-}
-
 fn extract_variable_and_value(s: &str) -> Result<(Cow<'static, str>, String)> {
     if let Some(equal) = s.chars().position(|c| c == '=') {
         let var = &s[..equal];
         let var = var.trim();
         let val = &s[equal + 1..];
-        let val = trim_quotes(val.trim()).to_string();
+        let val = snailquote::unescape(val.trim()).unwrap_or_else(|_| val.to_owned());
 
         if let Some(key) = COMMON_KEYS.iter().find(|&k| *k == var) {
             Ok((Cow::Borrowed(key), val))
