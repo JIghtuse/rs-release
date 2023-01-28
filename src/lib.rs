@@ -12,7 +12,7 @@
 //!         println!("{}={}", k, v);
 //!     }
 //! } else {
-//!     println!("Cannot parse {}", os_release_path);
+//!     eprintln!("Cannot parse {}", os_release_path);
 //! }
 //! ```
 #![deny(missing_docs)]
@@ -26,10 +26,10 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
-const PATHS: [&'static str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
-const QUOTES: [&'static str; 2] = ["\"", "'"];
+const PATHS: [&str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
+const QUOTES: [&str; 2] = ["\"", "'"];
 
-const COMMON_KEYS: [&'static str; 16] = [
+const COMMON_KEYS: [&str; 16] = [
     "ANSI_COLOR",
     "BUG_REPORT_URL",
     "BUILD_ID",
@@ -61,12 +61,12 @@ pub enum OsReleaseError {
 
 impl PartialEq for OsReleaseError {
     fn eq(&self, other: &OsReleaseError) -> bool {
-        match (self, other) {
+        matches!(
+            (self, other),
             (&OsReleaseError::Io(_), &OsReleaseError::Io(_))
-            | (&OsReleaseError::NoFile, &OsReleaseError::NoFile)
-            | (&OsReleaseError::ParseError, &OsReleaseError::ParseError) => true,
-            _ => false,
-        }
+                | (&OsReleaseError::NoFile, &OsReleaseError::NoFile)
+                | (&OsReleaseError::ParseError, &OsReleaseError::ParseError)
+        )
     }
 }
 
@@ -74,22 +74,14 @@ impl fmt::Display for OsReleaseError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             OsReleaseError::Io(ref inner) => inner.fmt(fmt),
-            OsReleaseError::NoFile => write!(fmt, "{}", self.description()),
-            OsReleaseError::ParseError => write!(fmt, "{}", self.description()),
+            OsReleaseError::NoFile => write!(fmt, "Failed to find os-release file"),
+            OsReleaseError::ParseError => write!(fmt, "File is malformed"),
         }
     }
 }
 
 impl Error for OsReleaseError {
-    fn description(&self) -> &str {
-        match *self {
-            OsReleaseError::Io(ref err) => err.description(),
-            OsReleaseError::NoFile => "Failed to find os-release file",
-            OsReleaseError::ParseError => "File is malformed",
-        }
-    }
-
-    fn cause(&self) -> Option<&Error> {
+    fn cause(&self) -> Option<&dyn Error> {
         match *self {
             OsReleaseError::Io(ref err) => Some(err),
             OsReleaseError::NoFile | OsReleaseError::ParseError => None,
@@ -135,16 +127,16 @@ fn extract_variable_and_value(s: &str) -> Result<(Cow<'static, str>, String)> {
 /// Parses key-value pairs from `path`
 pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, str>, String>> {
     let mut os_release = HashMap::new();
-    let file = try!(File::open(path));
+    let file = File::open(path)?;
     let reader = BufReader::new(file);
     for line in reader.lines() {
-        let line = try!(line);
+        let line = line?;
         let line = line.trim();
 
         if line.starts_with('#') || line.is_empty() {
             continue;
         }
-        let var_val = try!(extract_variable_and_value(line));
+        let var_val = extract_variable_and_value(line)?;
         os_release.insert(var_val.0, var_val.1);
     }
     Ok(os_release)
@@ -159,7 +151,7 @@ pub fn parse_os_release_str(data: &str) -> Result<HashMap<Cow<'static, str>, Str
         if line.starts_with('#') || line.is_empty() {
             continue;
         }
-        let var_val = try!(extract_variable_and_value(line));
+        let var_val = extract_variable_and_value(line)?;
         os_release.insert(var_val.0, var_val.1);
     }
     Ok(os_release)

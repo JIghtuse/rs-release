@@ -25,7 +25,7 @@ fn show_fedora_packages() {
     command.arg("%10{size} - %-25{name} \t %{version}\n");
 
     if let Err(e) = command.spawn() {
-        println!("ERROR running rpm: {:?}", e);
+        eprintln!("ERROR running rpm: {:?}", e);
     }
 }
 
@@ -38,7 +38,7 @@ fn show_debian_packages() {
     command.arg("${Installed-Size}\t${Package}\n");
 
     if let Err(e) = command.spawn() {
-        println!("ERROR running dpkg-query: {:?}", e);
+        eprintln!("ERROR running dpkg-query: {:?}", e);
     }
 }
 
@@ -47,8 +47,8 @@ fn main() {
         Ok(id) => match id.as_str() {
             "fedora" => show_fedora_packages(),
             "debian" => show_debian_packages(),
-            _ => println!("ERROR: {:?}", Error::UnknownOs),
+            _ => eprintln!("ERROR: {:?}", Error::UnknownOs),
         },
-        Err(e) => println!("ERROR: {:?}", e),
+        Err(e) => eprintln!("ERROR: {:?}", e),
     }
 }

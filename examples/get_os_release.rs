@@ -19,7 +19,7 @@ fn main() {
                 println!("{}={}", k, v);
             }
         }
-        Err(e) => println!("ERROR: {:?}", e),
+        Err(e) => eprintln!("ERROR: {e}"),
     }
 
     // You could also parse data from a string
