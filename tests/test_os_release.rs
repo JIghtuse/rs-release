@@ -1,6 +1,6 @@
 extern crate rs_release;
 
-use rs_release::{OsReleaseError, parse_os_release, parse_os_release_str};
+use rs_release::{parse_os_release, parse_os_release_str, OsReleaseError};
 
 #[test]
 fn fails_on_io_errors() {

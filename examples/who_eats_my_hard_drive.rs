@@ -44,13 +44,11 @@ fn show_debian_packages() {
 
 fn main() {
     match get_os_id() {
-        Ok(id) => {
-            match id.as_str() {
-                "fedora" => show_fedora_packages(),
-                "debian" => show_debian_packages(),
-                _ => println!("ERROR: {:?}", Error::UnknownOs),
-            }
-        }
+        Ok(id) => match id.as_str() {
+            "fedora" => show_fedora_packages(),
+            "debian" => show_debian_packages(),
+            _ => println!("ERROR: {:?}", Error::UnknownOs),
+        },
         Err(e) => println!("ERROR: {:?}", e),
     }
 }

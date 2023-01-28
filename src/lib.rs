@@ -17,34 +17,36 @@
 //! ```
 #![deny(missing_docs)]
 
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::From;
 use std::error::Error;
 use std::fmt;
 use std::fs::File;
-use std::io::{BufReader, BufRead};
+use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::borrow::Cow;
 
 const PATHS: [&'static str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
 const QUOTES: [&'static str; 2] = ["\"", "'"];
 
-const COMMON_KEYS: [&'static str; 16] = ["ANSI_COLOR",
-                                         "BUG_REPORT_URL",
-                                         "BUILD_ID",
-                                         "CPE_NAME",
-                                         "HOME_URL",
-                                         "ID",
-                                         "ID_LIKE",
-                                         "NAME",
-                                         "PRETTY_NAME",
-                                         "PRIVACY_POLICY_URL",
-                                         "SUPPORT_URL",
-                                         "VARIANT",
-                                         "VARIANT_ID",
-                                         "VERSION",
-                                         "VERSION_CODENAME",
-                                         "VERSION_ID"];
+const COMMON_KEYS: [&'static str; 16] = [
+    "ANSI_COLOR",
+    "BUG_REPORT_URL",
+    "BUILD_ID",
+    "CPE_NAME",
+    "HOME_URL",
+    "ID",
+    "ID_LIKE",
+    "NAME",
+    "PRETTY_NAME",
+    "PRIVACY_POLICY_URL",
+    "SUPPORT_URL",
+    "VARIANT",
+    "VARIANT_ID",
+    "VERSION",
+    "VERSION_CODENAME",
+    "VERSION_ID",
+];
 
 /// Represents possible errors when parsing os-release file/string
 #[derive(Debug)]
@@ -60,9 +62,9 @@ pub enum OsReleaseError {
 impl PartialEq for OsReleaseError {
     fn eq(&self, other: &OsReleaseError) -> bool {
         match (self, other) {
-            (&OsReleaseError::Io(_), &OsReleaseError::Io(_)) |
-            (&OsReleaseError::NoFile, &OsReleaseError::NoFile) |
-            (&OsReleaseError::ParseError, &OsReleaseError::ParseError) => true,
+            (&OsReleaseError::Io(_), &OsReleaseError::Io(_))
+            | (&OsReleaseError::NoFile, &OsReleaseError::NoFile)
+            | (&OsReleaseError::ParseError, &OsReleaseError::ParseError) => true,
             _ => false,
         }
     }
@@ -97,7 +99,7 @@ impl Error for OsReleaseError {
 
 impl From<std::io::Error> for OsReleaseError {
     fn from(err: std::io::Error) -> OsReleaseError {
-       OsReleaseError::Io(err)
+        OsReleaseError::Io(err)
     }
 }
 
