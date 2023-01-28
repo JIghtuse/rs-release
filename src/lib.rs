@@ -29,18 +29,28 @@ use std::path::Path;
 const PATHS: [&str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
 const QUOTES: [&str; 2] = ["\"", "'"];
 
-const COMMON_KEYS: [&str; 16] = [
+const COMMON_KEYS: [&str; 26] = [
     "ANSI_COLOR",
+    "ARCHITECTURE",
     "BUG_REPORT_URL",
     "BUILD_ID",
     "CPE_NAME",
+    "DEFAULT_HOSTNAME",
+    "DOCUMENTATION_URL",
     "HOME_URL",
     "ID",
     "ID_LIKE",
+    "IMAGE_ID",
+    "IMAGE_VERSION",
+    "LOGO",
     "NAME",
+    "PORTABLE_PREFIXES",
     "PRETTY_NAME",
     "PRIVACY_POLICY_URL",
+    "SUPPORT_END",
     "SUPPORT_URL",
+    "SYSEXT_LEVEL",
+    "SYSEXT_SCOPE",
     "VARIANT",
     "VARIANT_ID",
     "VERSION",
@@ -109,15 +119,15 @@ fn trim_quotes(s: &str) -> &str {
 
 fn extract_variable_and_value(s: &str) -> Result<(Cow<'static, str>, String)> {
     if let Some(equal) = s.chars().position(|c| c == '=') {
-        let var = &s[..equal];
-        let var = var.trim();
-        let val = &s[equal + 1..];
-        let val = trim_quotes(val.trim()).to_string();
+        let variable = &s[..equal];
+        let variable = variable.trim();
+        let value = &s[equal + 1..];
+        let value = trim_quotes(value.trim()).to_string();
 
-        if let Some(key) = COMMON_KEYS.iter().find(|&k| *k == var) {
-            Ok((Cow::Borrowed(key), val))
+        if let Ok(index) = COMMON_KEYS.binary_search(&variable) {
+            Ok((Cow::Borrowed(COMMON_KEYS[index]), value))
         } else {
-            Ok((Cow::Owned(var.to_string()), val))
+            Ok((Cow::Owned(variable.to_string()), value))
         }
     } else {
         Err(OsReleaseError::ParseError)
