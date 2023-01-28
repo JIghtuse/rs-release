@@ -134,14 +134,14 @@ fn extract_variable_and_value(s: &str) -> Result<(Cow<'static, str>, String)> {
     }
 }
 
-/// Parses key-value pairs from `path`
-pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, str>, String>> {
+fn parse_impl<S, L>(lines: L) -> Result<HashMap<Cow<'static, str>, String>>
+where
+    S: AsRef<str>,
+    L: Iterator<Item = S>,
+{
     let mut os_release = HashMap::new();
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    for line in reader.lines() {
-        let line = line?;
-        let line = line.trim();
+    for line in lines {
+        let line = line.as_ref().trim();
 
         if line.starts_with('#') || line.is_empty() {
             continue;
@@ -152,19 +152,16 @@ pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, 
     Ok(os_release)
 }
 
+/// Parses key-value pairs from `path`
+pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, str>, String>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    parse_impl(reader.lines().map(std::result::Result::unwrap_or_default))
+}
+
 /// Parses key-value pairs from `data` string
 pub fn parse_os_release_str(data: &str) -> Result<HashMap<Cow<'static, str>, String>> {
-    let mut os_release = HashMap::new();
-    for line in data.split('\n') {
-        let line = line.trim();
-
-        if line.starts_with('#') || line.is_empty() {
-            continue;
-        }
-        let var_val = extract_variable_and_value(line)?;
-        os_release.insert(var_val.0, var_val.1);
-    }
-    Ok(os_release)
+    parse_impl(data.split('\n'))
 }
 
 /// Tries to find and parse os-release in common paths. Stops on success.
