@@ -21,6 +21,7 @@ fn main() {
         }
         Err(e) => eprintln!("ERROR: {e}"),
     }
+    println!();
 
     // You could also parse data from a string
     if let Ok(os_release) = parse_os_release_str("NAME = Fedora") {

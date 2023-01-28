@@ -46,7 +46,7 @@ fn main() {
     match get_os_id() {
         Ok(id) => match id.as_str() {
             "fedora" => show_fedora_packages(),
-            "debian" => show_debian_packages(),
+            "debian" | "ubuntu" => show_debian_packages(),
             _ => eprintln!("ERROR: {:?}", Error::UnknownOs),
         },
         Err(e) => eprintln!("ERROR: {:?}", e),
