@@ -70,12 +70,12 @@ pub enum OsReleaseError {
 }
 
 impl PartialEq for OsReleaseError {
-    fn eq(&self, other: &OsReleaseError) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         matches!(
             (self, other),
-            (&OsReleaseError::Io(_), &OsReleaseError::Io(_))
-                | (&OsReleaseError::NoFile, &OsReleaseError::NoFile)
-                | (&OsReleaseError::ParseError, &OsReleaseError::ParseError)
+            (&Self::Io(_), &Self::Io(_))
+                | (&Self::NoFile, &Self::NoFile)
+                | (&Self::ParseError, &Self::ParseError)
         )
     }
 }
@@ -83,9 +83,9 @@ impl PartialEq for OsReleaseError {
 impl fmt::Display for OsReleaseError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            OsReleaseError::Io(ref inner) => inner.fmt(fmt),
-            OsReleaseError::NoFile => write!(fmt, "Failed to find os-release file"),
-            OsReleaseError::ParseError => write!(fmt, "File is malformed"),
+            Self::Io(ref inner) => inner.fmt(fmt),
+            Self::NoFile => write!(fmt, "Failed to find os-release file"),
+            Self::ParseError => write!(fmt, "File is malformed"),
         }
     }
 }
@@ -93,15 +93,15 @@ impl fmt::Display for OsReleaseError {
 impl Error for OsReleaseError {
     fn cause(&self) -> Option<&dyn Error> {
         match *self {
-            OsReleaseError::Io(ref err) => Some(err),
-            OsReleaseError::NoFile | OsReleaseError::ParseError => None,
+            Self::Io(ref err) => Some(err),
+            Self::NoFile | Self::ParseError => None,
         }
     }
 }
 
 impl From<std::io::Error> for OsReleaseError {
-    fn from(err: std::io::Error) -> OsReleaseError {
-        OsReleaseError::Io(err)
+    fn from(err: std::io::Error) -> Self {
+        Self::Io(err)
     }
 }
 
@@ -152,20 +152,23 @@ where
     Ok(os_release)
 }
 
+/// Mapping of os-release variable names to values
+type OsReleaseVariables = HashMap<Cow<'static, str>, String>;
+
 /// Parses key-value pairs from `path`
-pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<HashMap<Cow<'static, str>, String>> {
+pub fn parse_os_release<P: AsRef<Path>>(path: P) -> Result<OsReleaseVariables> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     parse_impl(reader.lines().map(std::result::Result::unwrap_or_default))
 }
 
 /// Parses key-value pairs from `data` string
-pub fn parse_os_release_str(data: &str) -> Result<HashMap<Cow<'static, str>, String>> {
+pub fn parse_os_release_str(data: &str) -> Result<OsReleaseVariables> {
     parse_impl(data.split('\n'))
 }
 
 /// Tries to find and parse os-release in common paths. Stops on success.
-pub fn get_os_release() -> Result<HashMap<Cow<'static, str>, String>> {
+pub fn get_os_release() -> Result<OsReleaseVariables> {
     for file in &PATHS {
         if let Ok(os_release) = parse_os_release(file) {
             return Ok(os_release);
