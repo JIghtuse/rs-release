@@ -118,20 +118,21 @@ fn trim_quotes(s: &str) -> &str {
 }
 
 fn extract_variable_and_value(s: &str) -> Result<(Cow<'static, str>, String)> {
-    if let Some(equal) = s.chars().position(|c| c == '=') {
-        let variable = &s[..equal];
-        let variable = variable.trim();
-        let value = &s[equal + 1..];
-        let value = trim_quotes(value.trim()).to_string();
+    s.chars().position(|c| c == '=').map_or_else(
+        || Err(OsReleaseError::ParseError),
+        |equal| {
+            let variable = &s[..equal];
+            let variable = variable.trim();
+            let value = &s[equal + 1..];
+            let value = trim_quotes(value.trim()).to_string();
 
-        if let Ok(index) = COMMON_KEYS.binary_search(&variable) {
-            Ok((Cow::Borrowed(COMMON_KEYS[index]), value))
-        } else {
-            Ok((Cow::Owned(variable.to_string()), value))
-        }
-    } else {
-        Err(OsReleaseError::ParseError)
-    }
+            if let Ok(index) = COMMON_KEYS.binary_search(&variable) {
+                Ok((Cow::Borrowed(COMMON_KEYS[index]), value))
+            } else {
+                Ok((Cow::Owned(variable.to_string()), value))
+            }
+        },
+    )
 }
 
 fn parse_impl<S, L>(lines: L) -> Result<HashMap<Cow<'static, str>, String>>

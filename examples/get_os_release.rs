@@ -6,11 +6,7 @@ use std::env;
 fn main() {
     let mut args = env::args();
 
-    let os_release = if let Some(os_release_path) = args.nth(1) {
-        parse_os_release(os_release_path)
-    } else {
-        get_os_release()
-    };
+    let os_release = args.nth(1).map_or_else(get_os_release, parse_os_release);
 
     match os_release {
         Ok(os_release) => {
