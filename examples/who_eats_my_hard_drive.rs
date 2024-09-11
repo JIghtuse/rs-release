@@ -15,7 +15,7 @@ fn get_os_id() -> Result<String, Error> {
 }
 
 // https://blog.tinned-software.net/show-installed-yum-packages-by-size/
-fn show_fedora_packages() {
+fn show_rpm_based_os_packages() {
     let mut command = Command::new("rpm");
 
     command.arg("--query");
@@ -44,9 +44,9 @@ fn show_debian_packages() {
 fn main() {
     match get_os_id() {
         Ok(id) => match id.as_str() {
-            "fedora" => show_fedora_packages(),
+            "fedora" | "opensuse-tumbleweed" => show_rpm_based_os_packages(),
             "debian" | "ubuntu" => show_debian_packages(),
-            _ => eprintln!("ERROR: {:?}", Error::UnknownOs),
+            _ => eprintln!("ERROR: {:?} {}", Error::UnknownOs, id),
         },
         Err(e) => eprintln!("ERROR: {:?}", e),
     }
