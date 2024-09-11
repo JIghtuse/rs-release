@@ -29,11 +29,13 @@ use std::path::Path;
 const PATHS: [&str; 2] = ["/etc/os-release", "/usr/lib/os-release"];
 const QUOTES: [&str; 2] = ["\"", "'"];
 
-const COMMON_KEYS: [&str; 26] = [
+const COMMON_KEYS: [&str; 30] = [
     "ANSI_COLOR",
     "ARCHITECTURE",
     "BUG_REPORT_URL",
     "BUILD_ID",
+    "CONFEXT_LEVEL",
+    "CONFEXT_SCOPE",
     "CPE_NAME",
     "DEFAULT_HOSTNAME",
     "DOCUMENTATION_URL",
@@ -53,6 +55,8 @@ const COMMON_KEYS: [&str; 26] = [
     "SYSEXT_SCOPE",
     "VARIANT",
     "VARIANT_ID",
+    "VENDOR_NAME",
+    "VENDOR_URL",
     "VERSION",
     "VERSION_CODENAME",
     "VERSION_ID",
