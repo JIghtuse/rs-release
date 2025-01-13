@@ -1,3 +1,7 @@
+### v0.1.11 (2025-01-13)
+
+* Add more common keys from os-release v257
+
 ### v0.1.10 (2024-09-12)
 
 * Add more common keys from os-release docs
